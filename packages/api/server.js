@@ -17,17 +17,18 @@ app.post('/register', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     if (!username) {
-        res.status(500).send('Please enter a username')
+        res.status(400).send('Please enter a username')
+        return
     }
     if (!password) {
-        res.status(500).send('Please enter a password')
+        res.status(400).send('Please enter a password')
+        return
     }
     if (username in users) {
-        res.status(500).send('Already registered')
+        res.status(400).send('Already registered')
+        return
     }
-    else {
-        users[username] = password
-    }
+    users[username] = password
     res.status(200).send('Succesfully registered');
 })
 
@@ -35,19 +36,23 @@ app.post('/login', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     if (!username) {
-        res.status(500).send('Please enter a username')
+        res.status(400).send('Please enter a username')
+        return
     }
     if (!password) {
-        res.status(500).send('Please enter a password')
+        res.status(400).send('Please enter a password')
+        return
     }
     if (!username in users) {
         res.status(404).send('Username not found')
+        return
     }
-    if (users[username] === password) {
-        res.status(200).send('Successfully logged in')
+    if (users[username] !== password) {
+        res.status(404).send('Invalid password')
+        return
     }
     else {
-        res.status(404).send('Invalid password')
+        res.status(200).send('Successfully logged in')
     }
 })
 
