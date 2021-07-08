@@ -14,37 +14,41 @@ app.use(express.urlencoded({ extended: true }));
 let users = {};
 
 app.post('/register', (req, res) => {
-    // TODO: get the username and password
-    // TODO: store in an object
     const username = req.body.username;
     const password = req.body.password;
-    if (!username in users) {
-        users[username] = password
+    if (!username) {
+        res.status(500).send('Please enter a username')
+    }
+    if (!password) {
+        res.status(500).send('Please enter a password')
+    }
+    if (username in users) {
+        res.status(500).send('Already registered')
     }
     else {
-        console.log('Already registered')
+        users[username] = password
     }
-    res.sendStatus(200);
+    res.status(200).send('Succesfully registered');
 })
 
 app.post('/login', (req, res) => {
-    // TODO: get the username and password
-    // TODO: store in an object
     const username = req.body.username;
     const password = req.body.password;
+    if (!username) {
+        res.status(500).send('Please enter a username')
+    }
+    if (!password) {
+        res.status(500).send('Please enter a password')
+    }
     if (!username in users) {
-        res.sendStatus(404)
-        console.log('Username not found')
+        res.status(404).send('Username not found')
     }
-    else if (username in users && users[username] === password) {
-        res.sendStatus(200)
-        console.log('Successfully logged in')
+    if (users[username] === password) {
+        res.status(200).send('Successfully logged in')
     }
-    else if (username in users && users[username] !== password) {
-        res.sendStatus(404)
-        console.log('Invalid password')
+    else {
+        res.status(404).send('Invalid password')
     }
-    res.sendStatus(200);
 })
 
 app.listen(PORT, () => {
