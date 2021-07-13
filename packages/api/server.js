@@ -15,34 +15,40 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const makeError = (str) => {
+    return {
+        message: str
+    }
+}
+
 app.post('/register', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     if (!username) {
-        res.status(400).send('Please enter a username')
+        res.status(400).json(makeError('Please enter a username'))
         return
     }
     if (!password) {
-        res.status(400).send('Please enter a password')
+        res.status(400).json(makeError('Please enter a password'))
         return
     }
     if (!firstName) {
-        res.status(400).send('Please enter your first name')
+        res.status(400).json(makeError('Please enter your first name'))
         return
     }
     if (!lastName) {
-        res.status(400).send('Please enter your last name')
+        res.status(400).json(makeError('Please enter your last name'))
         return
     }
     User.findOne({ username: username, }, (err, user) => {
         if (err) {
-            res.status(500).send('Internal error: ', err);
+            res.status(500).json(makeError('Internal error: ', err));
             return;
         }
         if (user) {
-            res.status(400).send('Already registered')
+            res.status(400).json(makeError('Already registered'))
             return
         }
         const userDocument = new User({
@@ -53,7 +59,7 @@ app.post('/register', (req, res) => {
         });
         userDocument.save((err, result) => {
             if (err) {
-                res.status(500).send('Internal error: ', err);
+                res.status(500).json(makeError('Internal error: ', err));
                 return;
             }
             res.status(200).json(result);
@@ -65,24 +71,24 @@ app.post('/login', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     if (!username) {
-        res.status(400).send('Please enter a username')
+        res.status(400).json(makeError('Please enter a username'))
         return
     }
     if (!password) {
-        res.status(400).send('Please enter a password')
+        res.status(400).json(makeError('Please enter a password'))
         return
     }
     User.findOne({ username: username, }, (err, user) => {
         if (err) {
-            res.status(500).send('Internal error: ', err);
+            res.status(500).json(makeError('Internal error: ', err));
             return;
         }
         if (!user) {
-            res.status(400).send('Username not found')
+            res.status(400).json(makeError('Username not found'))
             return
         }
         if (!bcrypt.compareSync(password, user.password)) {
-            res.status(404).send('Invalid password')
+            res.status(404).json(makeError('Invalid password'))
             return
         }
         res.status(200).json(user);
