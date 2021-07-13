@@ -15,7 +15,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Function takes a string and spits out a json object of the format:
 const makeError = (str) => {
     return {
         message: str
