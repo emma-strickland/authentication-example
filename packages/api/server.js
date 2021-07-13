@@ -15,34 +15,43 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Function takes a string and spits out a json object of the format:
+const convertToJson = (str) => {
+    let jsonMessage =
+    {
+        message: str
+    }
+    return jsonMessage
+}
+
 app.post('/register', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     if (!username) {
-        res.status(400).send('Please enter a username')
+        res.status(400).send.convertToJson('Please enter a username')
         return
     }
     if (!password) {
-        res.status(400).send('Please enter a password')
+        res.status(400).send.convertToJson('Please enter a password')
         return
     }
     if (!firstName) {
-        res.status(400).send('Please enter your first name')
+        res.status(400).send.convertToJson('Please enter your first name')
         return
     }
     if (!lastName) {
-        res.status(400).send('Please enter your last name')
+        res.status(400).send.convertToJson('Please enter your last name')
         return
     }
     User.findOne({ username: username, }, (err, user) => {
         if (err) {
-            res.status(500).send('Internal error: ', err);
+            res.status(500).send.convertToJson('Internal error: ', err);
             return;
         }
         if (user) {
-            res.status(400).send('Already registered')
+            res.status(400).send.convertToJson('Already registered')
             return
         }
         const userDocument = new User({
@@ -53,7 +62,7 @@ app.post('/register', (req, res) => {
         });
         userDocument.save((err, result) => {
             if (err) {
-                res.status(500).send('Internal error: ', err);
+                res.status(500).send.convertToJson('Internal error: ', err);
                 return;
             }
             res.status(200).json(result);
@@ -65,24 +74,24 @@ app.post('/login', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     if (!username) {
-        res.status(400).send('Please enter a username')
+        res.status(400).send.convertToJson('Please enter a username')
         return
     }
     if (!password) {
-        res.status(400).send('Please enter a password')
+        res.status(400).send.convertToJson('Please enter a password')
         return
     }
     User.findOne({ username: username, }, (err, user) => {
         if (err) {
-            res.status(500).send('Internal error: ', err);
+            res.status(500).send.convertToJson('Internal error: ', err);
             return;
         }
         if (!user) {
-            res.status(400).send('Username not found')
+            res.status(400).send.convertToJson('Username not found')
             return
         }
         if (!bcrypt.compareSync(password, user.password)) {
-            res.status(404).send('Invalid password')
+            res.status(404).send.convertToJson('Invalid password')
             return
         }
         res.status(200).json(user);
