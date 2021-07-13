@@ -20,6 +20,19 @@ const makeError = (str) => {
         message: str
     }
 }
+const registerResponse = (obj) => {
+    return {
+        user:
+            obj
+    }
+}
+const loginResponse = (obj) => {
+    return {
+        user:
+            obj,
+        token: "ilikedogs"
+    }
+}
 
 app.post('/register', (req, res) => {
     const username = req.body.username;
@@ -62,7 +75,7 @@ app.post('/register', (req, res) => {
                 res.status(500).json(makeError('Internal error: ', err));
                 return;
             }
-            res.status(200).json(result);
+            res.status(200).json(registerResponse(result));
         });
     });
 })
@@ -91,7 +104,7 @@ app.post('/login', (req, res) => {
             res.status(404).json(makeError('Invalid password'))
             return
         }
-        res.status(200).json(user);
+        res.status(200).json(loginResponse(user));
     });
 })
 
