@@ -8,7 +8,7 @@
         "backend:install": "yarn workspace api install",
         "backend:start": "yarn workspace api start",
         "backend:start-nodemon": "yarn workspace api start-nodemon",
-	"frontend:build": "yarn workspace app build",
+        "frontend:build": "yarn workspace app build",
         "frontend:install": "yarn workspace app install",
         "frontend:start": "yarn workspace app start"
     },

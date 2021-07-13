@@ -1,3 +1,5 @@
+const User = require('./model');
+
 const bcrypt = require('bcryptjs')
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -5,8 +7,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 dotenv.config();
-
-const User = require('./model');
 
 const PORT = process.env.PORT || 3000;
 
@@ -18,6 +18,9 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/register', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
+    const firstName = req.body.firstName;
+    const lastName = req.body.lastName;
+
     if (!username) {
         res.status(400).send('Please enter a username')
         return
@@ -26,7 +29,15 @@ app.post('/register', (req, res) => {
         res.status(400).send('Please enter a password')
         return
     }
-    User.findOne({ username: username, }, function (err, user) {
+    if (!firstName) {
+        res.status(400).send('Please enter your first name')
+        return
+    }
+    if (!lastName) {
+        res.status(400).send('Please enter your last name')
+        return
+    }
+    User.findOne({ username: username, }, (err, user) => {
         if (err) {
             res.status(500).send('Internal error: ', err);
             return;
@@ -37,9 +48,11 @@ app.post('/register', (req, res) => {
         }
         const userDocument = new User({
             username: username,
-            password: bcrypt.hashSync(password, 10)
+            password: bcrypt.hashSync(password, 10),
+            firstName: firstName,
+            lastName: lastName
         });
-        userDocument.save(function (err, result) {
+        userDocument.save((err, result) => {
             if (err) {
                 res.status(500).send('Internal error: ', err);
                 return;
@@ -60,7 +73,7 @@ app.post('/login', (req, res) => {
         res.status(400).send('Please enter a password')
         return
     }
-    User.findOne({ username: username, }, function (err, user) {
+    User.findOne({ username: username, }, (err, user) => {
         if (err) {
             res.status(500).send('Internal error: ', err);
             return;
@@ -73,24 +86,32 @@ app.post('/login', (req, res) => {
             res.status(404).send('Invalid password')
             return
         }
-        res.status(200).send('Successfully logged in')
+        res.status(200).json(user);
     });
 })
 
-mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.yv9cw.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
-    {
-        useNewUrlParser: true,
-        useFindAndModify: false,
-        useUnifiedTopology: true
+const initAsync = async () => {
+    try {
+        let mongooseConnectionURL;
+        mongooseConnectionURL += `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}`;
+        mongooseConnectionURL += `@cluster0.yv9cw.mongodb.net/${process.env.DB_NAME}?`;
+        mongooseConnectionURL += `retryWrites=true&w=majority`;
+        await mongoose.connect(mongooseConnectionURL, {
+            // Uses the new URL Parser. Required for the connection string format we are using.
+            useNewUrlParser: true,
+            // Uses new topology engine.
+            useUnifiedTopology: true,
+            // Use new index creation mechanism.
+            useCreateIndex: true
+        });
+        console.log('Successfully connected to db...')
+
+        app.listen(PORT, () => {
+            console.log(`Server listening on ${PORT}...`);
+        });
+    } catch (err) {
+
     }
-);
+}
 
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error: "));
-db.once("open", function () {
-    console.log("Connected successfully");
-});
-
-app.listen(PORT, () => {
-    console.log(`Server listening on ${PORT}`);
-});
+initAsync();
