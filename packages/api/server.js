@@ -20,7 +20,6 @@ app.post('/register', (req, res) => {
     const password = req.body.password;
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
-
     if (!username) {
         res.status(400).send('Please enter a username')
         return
