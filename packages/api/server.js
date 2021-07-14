@@ -5,10 +5,13 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const express = require('express');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
+
+const JWT_SECRET = "shhhhhh";
 
 const app = express();
 app.use(cors());
@@ -20,17 +23,23 @@ const makeError = (str) => {
         message: str
     }
 }
-const registerResponse = (obj) => {
+
+const makeRegisterResponse = (user) => {
     return {
-        user:
-            obj
+        user: user
     }
 }
-const loginResponse = (obj) => {
+
+const makeLoginResponse = (user, token) => {
     return {
-        user:
-            obj,
-        token: "ilikedogs"
+        user: user,
+        token: token
+    }
+}
+
+const makeUserResponse = (user) => {
+    return {
+        user: user
     }
 }
 
@@ -75,7 +84,7 @@ app.post('/register', (req, res) => {
                 res.status(500).json(makeError('Internal error: ', err));
                 return;
             }
-            res.status(200).json(registerResponse(result));
+            res.status(200).json(makeRegisterResponse(result));
         });
     });
 })
@@ -101,11 +110,38 @@ app.post('/login', (req, res) => {
             return
         }
         if (!bcrypt.compareSync(password, user.password)) {
-            res.status(404).json(makeError('Invalid password'))
+            res.status(401).json(makeError('Invalid password'))
             return
         }
-        res.status(200).json(loginResponse(user));
+        res.status(200).json(makeLoginResponse(user, jwt.sign({ username: username }, JWT_SECRET)));
     });
+})
+
+app.get('/user', (req, res) => {
+    let token = req.headers.authorization.slice(6);
+
+    try {
+        // 1. We're going to verify the server sent this token
+        const payload = jwt.verify(token, JWT_SECRET);
+        const user = payload.username;
+        // 2. We're going to parse out the username from this token, and with that
+        //    do whatever we need to do (return user)
+        User.findOne({ username: user, }, (err, user) => {
+            if (err) {
+                res.status(500).json(makeError('Internal error: ', err));
+                return;
+            }
+            if (!user) {
+                res.status(400).json(makeError('Username not found'))
+                return
+            }
+            res.status(200).json(makeUserResponse(user))
+        });
+    } catch (err) {
+        // if token isn't provided, throw an error
+        console.log(err)
+        res.status(401).json(makeError('Unauthorized'));
+    }
 })
 
 const initAsync = async () => {
