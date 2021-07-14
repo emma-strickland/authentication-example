@@ -163,7 +163,7 @@ const initAsync = async () => {
     try {
         let mongooseConnectionURL;
         mongooseConnectionURL += `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}`;
-        mongooseConnectionURL += `@cluster0.yv9cw.mongodb.net/${process.env.DB_NAME}?`;
+        mongooseConnectionURL += `@${process.env.DB_HOST}/${process.env.DB_NAME}?`;
         mongooseConnectionURL += `retryWrites=true&w=majority`;
         await mongoose.connect(mongooseConnectionURL, {
             // Uses the new URL Parser. Required for the connection string format we are using.
