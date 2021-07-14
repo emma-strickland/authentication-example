@@ -12,6 +12,7 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 
 const JWT_SECRET = "shhhhhh";
+const BEARER = 'Bearer';
 
 const app = express();
 app.use(cors());
@@ -41,6 +42,27 @@ const makeUserResponse = (user) => {
     return {
         user: user
     }
+}
+
+const authorizeRequest = (req, callback) => {
+    if (!req.headers.authorization) {
+        callback('Token is null', null);
+        return
+    }
+    if (!req.headers.authorization.startsWith(BEARER)) {
+        callback('Token does not start with Bearer', null);
+        return
+    }
+    let token = req.headers.authorization.slice(BEARER.length);
+    let payload;
+    try {
+        payload = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+        callback(err, null);
+        return
+    }
+
+    callback(null, payload.username);
 }
 
 app.post('/register', (req, res) => {
@@ -117,75 +139,24 @@ app.post('/login', (req, res) => {
     });
 })
 
-// const authorizeRequest = (req, callback) => {
-//     /*
-//     if you encounter an error:
-//     callback("error message", null)
-
-//     if you find the username:
-//     callback(null, "username")
-//     */
-//     if (!req.headers.authorization) {
-//         callback("No authorization header", null);
-//         return;
-//     }
-
-
-//     let username = "aksdjfh";
-//     callback(null, username);
-// }
-
 app.get('/user', (req, res) => {
-    let token = req.headers.authorization;
-    if (!req.headers.authorization) {
-        res.status(401).json(makeError('Unauthorized'));
-        return
-    }
-    if (!token.startsWith('Bearer')) {
-        res.status(401).json(makeError('Unauthorized'));
-        return
-    }
-
-    let payload;
-    try {
-        payload = jwt.verify(token, JWT_SECRET);
-    } catch (err) {
-        console.log(err)
-        res.status(401).json(makeError('Unauthorized'));
-    }
-    const user = payload.username;
-    User.findOne({ username: user, }, (err, user) => {
+    authorizeRequest(req, (err, user) => {
         if (err) {
-            res.status(500).json(makeError('Internal error: ', err));
-            return;
-        }
-        if (!user) {
-            res.status(400).json(makeError('User not found'))
+            res.status(401).json(makeError(err));
             return
         }
-        res.status(200).json(makeUserResponse(user))
+        User.findOne({ username: user, }, (err, user) => {
+            if (err) {
+                res.status(500).json(makeError('Internal error: ', err));
+                return;
+            }
+            if (!user) {
+                res.status(400).json(makeError('User not found'))
+                return
+            }
+            res.status(200).json(makeUserResponse(user))
+        });
     });
-
-    // authorizeRequest(req, (err, username) => {
-    //     if (err) {
-    //         res.status(401).json(makeError('Unauthorized'));
-    //         return;
-    //     }
-
-    //     User.findOne({ username: username }, (err, user) => {
-    //         if (err) {
-    //             res.status(500).json(makeError('Internal error: ', err));
-    //             return;
-    //         }
-    //         if (!user) {
-    //             res.status(400).json(makeError('Username not found'))
-    //             return
-    //         }
-    //         res.status(200).json(makeUserResponse(user))
-    //     });
-
-    // });
-
 })
 
 const initAsync = async () => {
