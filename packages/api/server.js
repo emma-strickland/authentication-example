@@ -5,10 +5,14 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const express = require('express');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
+
+const JWT_SECRET = "shhhhhh";
+const BEARER = 'Bearer';
 
 const app = express();
 app.use(cors());
@@ -19,6 +23,46 @@ const makeError = (str) => {
     return {
         message: str
     }
+}
+
+const makeRegisterResponse = (user) => {
+    return {
+        user: user
+    }
+}
+
+const makeLoginResponse = (user, token) => {
+    return {
+        user: user,
+        token: token
+    }
+}
+
+const makeUserResponse = (user) => {
+    return {
+        user: user
+    }
+}
+
+const authorizeRequest = (req, callback) => {
+    if (!req.headers.authorization) {
+        callback('Token is null', null);
+        return
+    }
+    if (!req.headers.authorization.startsWith(BEARER)) {
+        callback('Token does not start with Bearer', null);
+        return
+    }
+    let token = req.headers.authorization.slice(BEARER.length);
+    let payload;
+    try {
+        payload = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+        callback(err, null);
+        return
+    }
+
+    callback(null, payload.username);
 }
 
 app.post('/register', (req, res) => {
@@ -62,7 +106,7 @@ app.post('/register', (req, res) => {
                 res.status(500).json(makeError('Internal error: ', err));
                 return;
             }
-            res.status(200).json(result);
+            res.status(200).json(makeRegisterResponse(result));
         });
     });
 })
@@ -84,14 +128,34 @@ app.post('/login', (req, res) => {
             return;
         }
         if (!user) {
-            res.status(400).json(makeError('Username not found'))
+            res.status(400).json(makeError('User not found'))
             return
         }
         if (!bcrypt.compareSync(password, user.password)) {
-            res.status(404).json(makeError('Invalid password'))
+            res.status(401).json(makeError('Invalid password'))
             return
         }
-        res.status(200).json(user);
+        res.status(200).json(makeLoginResponse(user, jwt.sign({ username: username }, JWT_SECRET)));
+    });
+})
+
+app.get('/user', (req, res) => {
+    authorizeRequest(req, (err, user) => {
+        if (err) {
+            res.status(401).json(makeError(err));
+            return
+        }
+        User.findOne({ username: user, }, (err, user) => {
+            if (err) {
+                res.status(500).json(makeError('Internal error: ', err));
+                return;
+            }
+            if (!user) {
+                res.status(400).json(makeError('User not found'))
+                return
+            }
+            res.status(200).json(makeUserResponse(user))
+        });
     });
 })
 
