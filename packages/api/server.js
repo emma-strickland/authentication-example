@@ -1,11 +1,11 @@
-const User = require('./model');
-
 const bcrypt = require('bcryptjs')
 const cors = require('cors');
 const dotenv = require('dotenv');
 const express = require('express');
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+
+const User = require('./model');
 
 dotenv.config();
 
