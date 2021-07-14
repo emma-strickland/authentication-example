@@ -10,8 +10,6 @@ const jwt = require('jsonwebtoken');
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
-
-const JWT_SECRET = "shhhhhh";
 const BEARER = 'Bearer';
 
 const app = express();
@@ -56,7 +54,7 @@ const authorizeRequest = (req, callback) => {
     let token = req.headers.authorization.slice(BEARER.length);
     let payload;
     try {
-        payload = jwt.verify(token, JWT_SECRET);
+        payload = jwt.verify(token, `${process.env.JWT_SECRET}`);
     } catch (err) {
         callback(err, null);
         return
@@ -135,7 +133,7 @@ app.post('/login', (req, res) => {
             res.status(401).json(makeError('Invalid password'))
             return
         }
-        res.status(200).json(makeLoginResponse(user, jwt.sign({ username: username }, JWT_SECRET)));
+        res.status(200).json(makeLoginResponse(user, jwt.sign({ username: username }, `${process.env.JWT_SECRET}`)));
     });
 })
 
