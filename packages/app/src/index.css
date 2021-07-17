@@ -4,37 +4,28 @@
   background-color: rgba(255, 255, 255, 1);
 }
 
-.container {
-  opacity: 1;  
-  padding-top: 16px;
-  -moz-animation: fadein 0.5s; /* Firefox < 16 */
-  -ms-animation: fadein 0.5s; /* Internet Explorer */
-  -o-animation: fadein 0.5s; /* Opera < 12.1 */
-  -webkit-animation: fadein 0.5s; /* Safari, Chrome and Opera > 12.1 */
-  animation: fadein 0.5s;
-}
-
 body {
   margin: 0;
   font-family: 'Inconsolata', monospace;
-  padding: 4px;
 }
 
 .App {
   height: 100vh;
 }
 
-.title {
-  font-size: 32px;
-  margin-left: 16px;
-  margin-right: 16px;  
+.header {
+  background-color: #222;
+  padding: 20px;
 }
 
-.subtext {
-  font-size: 16px;
-  margin-top: 8px;
-  margin-left: 16px;
-  margin-right: 16px;
+.header-right {
+  float: right;
+}
+
+.header-link {
+  text-decoration: none;
+  background: #222;
+  color:rgba(255, 255, 255, 1)
 }
 
 hr {
@@ -42,47 +33,6 @@ hr {
   margin-top: 32px;
 }
 
-.link {
-  margin-top: 32px;
-  font-size: 24px;
-}
-
-.link > a {
-  position: relative;
-  color: #000;
-  text-decoration: none;
-}
-
-.link > a::before {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: #000;
-  visibility: hidden;
-  transform: scaleX(0);
-  transition: all 0.3s ease-in-out 0s;
-}
-
-.link > a:hover {
-  color: #000;
-}
-
-.link > a:hover::before {
-  visibility: visible;
-  transform: scaleX(1);
-}
-
-.current {
-  color: rgb(0, 0, 0, 0.25);
-  font-size: 15px;
-  font-weight: 100;
-  margin-top: 24px;
-  padding: 8px;
-  text-shadow: .5px .5px .5px rgb(126, 126, 126); 
-}
 
 @media (min-width: 350px) {
   .title {
@@ -99,54 +49,5 @@ hr {
   }
   .subtext {
     font-size: 32px;
-  }
-}
-
-@keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Firefox < 16 */
-@-moz-keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Safari, Chrome and Opera > 12.1 */
-@-webkit-keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Internet Explorer */
-@-ms-keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Opera < 12.1 */
-@-o-keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
