@@ -2,7 +2,7 @@ import React from "react";
 
 import { Link } from "react-router-dom";
 
-const Header = ({ token, onLogOut }) => {
+const Header = ({ isLoggedIn, onLogOut }) => {
     return (
         <div className="header">
             <div className="header-left">
@@ -10,16 +10,16 @@ const Header = ({ token, onLogOut }) => {
             </div>
             <div className="header-center">Authentication Example</div>
             <div className="header-right">
-                {!token ?
+                {isLoggedIn === true ?
                     (
-                        <>
-                            <Link className="header-link" to="/register">Register </Link>
-                            <Link className="header-link" to="/login"> Log in </Link>
-                        </>
+                        <Link className="header-link" onClick={onLogOut} to="/">Log out</Link>
                     )
                     :
                     (
-                        <Link className="header-link" onClick={onLogOut} >Log out</Link>
+                        <>
+                            <Link className="header-link" to="/register">Register </Link>
+                            <Link className="header-link" to="/login">Log in</Link>
+                        </>
                     )
                 }
             </div>

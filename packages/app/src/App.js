@@ -1,5 +1,5 @@
 import './App.scss';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     BrowserRouter as Router,
     Switch,
@@ -12,24 +12,24 @@ import Home from './pages/home';
 import Login from './pages/login';
 import Register from './pages/register';
 
-/*
-1. hide password from password field by passing a type as prop in form component
-2. hide password from mongo response by adjusting the schema 
-*/
-
 const TOKEN = 'token';
 
 const App = () => {
     const [token, setToken] = useState(localStorage.getItem(TOKEN) || '');
+    const [isLoggedIn, setIsLoggedIn] = useState();
+
+    useEffect(() => {
+        setIsLoggedIn(token.length > 0);
+    }, [token]);
 
     const logOut = () => {
-        setToken(null);
+        setToken('');
         localStorage.removeItem(TOKEN);
     }
 
     return (
         <Router>
-            <Header token={token} onLogOut={logOut} />
+            <Header isLoggedIn={isLoggedIn} onLogOut={logOut} />
             <div className="content">
                 <Switch>
                     <Route path="/register">
