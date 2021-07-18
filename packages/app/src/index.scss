@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata&display=swap');
+
+* {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+$primary: #6C698D;
+$secondary: #D4D2D5;
+$tertiary: #6E6A6F;
+
+body {
+  margin: 0;
+  font-family: 'Inconsolata', monospace;
+}
+
+.App {
+  height: 100vh;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.form {
+  text-align: left;
+  margin-top: 16px;
+  -webkit-text-security: 'disc'
+}
+
+.header {
+  background-color: $primary;
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.header-link {
+  text-decoration: none;
+  background: $primary;
+  color:$secondary
+}
+
+.header-left {
+  flex: 1;
+  text-align: left;
+  background: $primary;
+}
+
+.header-center {
+  flex: 1;
+  text-decoration: none;
+  background: $primary;
+  color: $secondary;
+  font-size: 24px;
+  text-align: center;
+}
+
+.header-right {
+  flex: 1;
+  text-align: right;
+  background: $primary;
+}
+
+.button {
+    cursor: pointer;
+    border: 1px solid $tertiary;
+    background: $primary;
+    padding-left: 48px;
+    padding-top: 8px;
+    padding-right: 48px;
+    padding-bottom: 8px;
+    margin-top: 16px;
+    min-width: 64px;
+    border-radius: 16px;
+    color: $secondary;
+    transition: all 0.1s ease-in;
+    font-family: 'Inconsolata', monospace;
+  }
+   
+.button:hover {
+    opacity: .90;
+    color: $secondary;
+}
+
+hr {
+  width: 16vw;
+  margin-top: 32px;
+}
+
+
+@media (min-width: 350px) {
+  .title {
+    font-size: 48px;
+  }
+  .subtext {
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 650px) {
+  .title {
+    font-size: 64px;
+  }
+  .subtext {
+    font-size: 32px;
+  }
+}

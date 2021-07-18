@@ -43,7 +43,7 @@ const Login = ({ onLogin }) => {
                 Login
             </h1>
             <Form label="Username" value={username} setValue={setUsername} />
-            <Form label="Password" value={password} setValue={setPassword} />
+            <Form label="Password" value={password} setValue={setPassword} type="password" />
             <Button label="Login" onClick={login} />
         </div>
 

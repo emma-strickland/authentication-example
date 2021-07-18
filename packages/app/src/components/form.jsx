@@ -1,13 +1,13 @@
 import React from "react";
 
-const Form = ({ label, value, setValue }) => {
+const Form = ({ label, value, setValue, type }) => {
     return (
-        <div>
+        <div className="form">
+            <div>{label}</div>
             <form>
                 <label>
-                    {`${label}: `}
                     <input
-                        type="text" name={label}
+                        type={type} name={label}
                         onChange={event => setValue(event.target.value)}
                         value={value}
                     />

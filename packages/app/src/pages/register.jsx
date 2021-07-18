@@ -35,7 +35,7 @@ const Register = () => {
             <Form label="First Name" value={firstName} setValue={setFirstName} />
             <Form label="Last Name" value={lastName} setValue={setLastName} />
             <Form label="Username" value={username} setValue={setUsername} />
-            <Form label="Password" value={password} setValue={setPassword} />
+            <Form label="Password" value={password} setValue={setPassword} type="password" />
             <Button label="Register" onClick={register} />
         </div>
     )
