@@ -1,60 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import config from './config';
+import './App.scss';
+import React, { useEffect, useState } from "react";
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+} from "react-router-dom";
 
-function App() {
-  const [response, setResponse] = useState('');
+import Header from './components/header'
 
-  const openSpotifyProfile = () => {
-    window.open(config.SPOTIFY_PROFILE_URL, "_blank");
-  }
+import Home from './pages/home';
+import Login from './pages/login';
+import Register from './pages/register';
 
-  useEffect(() => {
-    fetch(`${config.API_BASE_URL}/recentlyPlayed`)
-      .then(res => res.json())
-      .then(result => {
-        setResponse(result);
-      }).catch(error => {
-        console.log('error: ', error);
-      });
-  }, []);
+const TOKEN = 'token';
 
-  return (
-    <div className="App">
-      {response && (
-        <div className="container">
-          <div className="title">{config.NAME}</div>
-          <div className="subtext">
-            Software Engineer based in Brooklyn, NY
-            <hr />
-            <div className="link">
-              <a href={`mailto:${config.EMAIL_ADDRESS}`} target="_blank" rel="noopener noreferrer">
-                Email
-              </a>
+const App = () => {
+    const [token, setToken] = useState(localStorage.getItem(TOKEN) || '');
+    const [isLoggedIn, setIsLoggedIn] = useState();
+
+    useEffect(() => {
+        setIsLoggedIn(token.length > 0);
+    }, [token]);
+
+    const logOut = () => {
+        setToken('');
+        localStorage.removeItem(TOKEN);
+    }
+
+    return (
+        <Router>
+            <Header isLoggedIn={isLoggedIn} onLogOut={logOut} />
+            <div className="content">
+                <Switch>
+                    <Route path="/register">
+                        <Register />
+                    </Route>
+                    <Route path="/login">
+                        <Login onLogin={token => {
+                            setToken(token);
+                            localStorage.setItem(TOKEN, token);
+                        }} />
+                    </Route>
+                    <Route path="/">
+                        <Home />
+                    </Route>
+                </Switch>
             </div>
-            <div className="link">
-              <a href={config.LINKEDIN_URL} target="_blank" rel="noopener noreferrer">
-                LinkedIn
-              </a>
-            </div>
-            <div className="link">
-              <a href={config.GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                Github
-              </a>
-            </div>
-            <hr />
-            <div className="current">
-              Currently listening to:
-            </div>
-            <div className="music-text">
-              <img src={response.image} alt="album-art" className="album-art" onClick={openSpotifyProfile} />
-              <div className="music-subtitle">"{response.track}" – {response.artist}</div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+        </Router >
+    );
 }
 
 export default App;

@@ -9,7 +9,7 @@ const User = require('./model');
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const BEARER = 'Bearer';
 
 const app = express();
