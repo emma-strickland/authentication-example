@@ -5,49 +5,43 @@ import Button from "../components/button";
 import Form from '../components/form';
 import config from '../config';
 
+import { post } from "../tools/api";
+
 const Login = ({ onLogin }) => {
-    let history = useHistory();
+  let history = useHistory();
 
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    const clearForm = () => {
-        setUsername('');
-        setPassword('');
-    }
+  const clearForm = () => {
+    setEmail('');
+    setPassword('');
+  }
 
-    const login = () => {
-        const requestOptionsLogin = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
-        }
-        fetch(`${config.API_BASE_URL}/login`, requestOptionsLogin)
-            .then(res => res.json())
-            .then(result => {
-                onLogin(result.token)
-                clearForm();
-                history.push("/");
-            })
-            .catch(error => {
-                console.log('error: ', error);
-            })
-    }
+  const login = () => {
+    post("login", {
+      email: email,
+      password: password
+    }, (error) => {
+      // TODO
+    }, (response) => {
+      onLogin(response.token)
+      clearForm();
+      history.push("/");
+    })
+  }
 
-    return (
-        <div>
-            <h1>
-                Login
-            </h1>
-            <Form label="Username" value={username} setValue={setUsername} />
-            <Form label="Password" value={password} setValue={setPassword} type="password" />
-            <Button label="Login" onClick={login} />
-        </div>
+  return (
+    <div>
+      <h1>
+        Login
+      </h1>
+      <Form label="Email" value={email} setValue={setEmail} onSubmit={login} />
+      <Form label="Password" value={password} setValue={setPassword} type="password" onSubmit={login} />
+      <Button label="Login" onClick={login} />
+    </div>
 
-    )
+  )
 }
 
 export default Login;
