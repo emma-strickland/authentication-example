@@ -1,3 +1,4 @@
+// TODO(emma): error objects are not showing up in error response.
 const bcrypt = require('bcryptjs')
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -42,6 +43,17 @@ const makeUserResponse = (user) => {
     }
 }
 
+const validateEmail = (input) => {
+    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (input.match(validRegex)) {
+        //console.log("Valid email address!");
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 const authorizeRequest = (req, callback) => {
     if (!req.headers.authorization) {
         callback('Token is null', null);
@@ -60,16 +72,17 @@ const authorizeRequest = (req, callback) => {
         return
     }
 
-    callback(null, payload.username);
+    callback(null, payload.email);
 }
 
 app.post('/register', (req, res) => {
-    const username = req.body.username;
+    console.log('register')
+    const email = req.body.email;
     const password = req.body.password;
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
-    if (!username) {
-        res.status(400).json(makeError('Please enter a username'))
+    if (!email) {
+        res.status(400).json(makeError('Please enter an email'))
         return
     }
     if (!password) {
@@ -84,9 +97,13 @@ app.post('/register', (req, res) => {
         res.status(400).json(makeError('Please enter your last name'))
         return
     }
-    User.findOne({ username: username, }, (err, user) => {
+    if (!validateEmail(email)) {
+        res.status(400).json(makeError('Invalid email'))
+        return
+    }
+    User.findOne({ email: email, }, (err, user) => {
         if (err) {
-            res.status(500).json(makeError('Internal error: ', err));
+            res.status(500).json(err);
             return;
         }
         if (user) {
@@ -94,14 +111,14 @@ app.post('/register', (req, res) => {
             return
         }
         const userDocument = new User({
-            username: username,
+            email: email,
             password: bcrypt.hashSync(password, 10),
             firstName: firstName,
             lastName: lastName
         });
         userDocument.save((err, result) => {
             if (err) {
-                res.status(500).json(makeError('Internal error: ', err));
+                res.status(500).json(err);
                 return;
             }
             res.status(200).json(makeRegisterResponse(result));
@@ -110,19 +127,19 @@ app.post('/register', (req, res) => {
 })
 
 app.post('/login', (req, res) => {
-    const username = req.body.username;
+    const email = req.body.email;
     const password = req.body.password;
-    if (!username) {
-        res.status(400).json(makeError('Please enter a username'))
+    if (!email) {
+        res.status(400).json(makeError('Please enter an email'))
         return
     }
     if (!password) {
         res.status(400).json(makeError('Please enter a password'))
         return
     }
-    User.findOne({ username: username, }, (err, user) => {
+    User.findOne({ email: email, }, (err, user) => {
         if (err) {
-            res.status(500).json(makeError('Internal error: ', err));
+            res.status(500).json(err);
             return;
         }
         if (!user) {
@@ -133,19 +150,19 @@ app.post('/login', (req, res) => {
             res.status(401).json(makeError('Invalid password'))
             return
         }
-        res.status(200).json(makeLoginResponse(user, jwt.sign({ username: username }, `${process.env.JWT_SECRET}`)));
+        res.status(200).json(makeLoginResponse(user, jwt.sign({ email: email }, `${process.env.JWT_SECRET}`)));
     });
 })
 
 app.get('/user', (req, res) => {
-    authorizeRequest(req, (err, user) => {
+    authorizeRequest(req, (err, email) => {
         if (err) {
-            res.status(401).json(makeError(err));
+            res.status(401).json(err);
             return
         }
-        User.findOne({ username: user, }, (err, user) => {
+        User.findOne({ email: email, }, (err, user) => {
             if (err) {
-                res.status(500).json(makeError('Internal error: ', err));
+                res.status(500).json(err);
                 return;
             }
             if (!user) {
