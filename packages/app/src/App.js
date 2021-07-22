@@ -12,6 +12,7 @@ import Footer from './components/footer'
 import Home from './pages/home';
 import Login from './pages/login';
 import Register from './pages/register';
+import Sell from './pages/sell';
 
 const TOKEN = 'token';
 
@@ -41,6 +42,9 @@ const App = () => {
               setToken(token);
               localStorage.setItem(TOKEN, token);
             }} />
+          </Route>
+          <Route path="/sell">
+            <Sell />
           </Route>
           <Route path="/">
             <Home />

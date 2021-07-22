@@ -6,7 +6,10 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
-const User = require('./model');
+const User = require('./models/model');
+const Post = require('./models/model-post');
+
+const Validation = require('./utils/validation')
 
 dotenv.config();
 
@@ -43,13 +46,9 @@ const makeUserResponse = (user) => {
 	}
 }
 
-const validateEmail = (input) => {
-	var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-	if (input.match(validRegex)) {
-		return true;
-	}
-	else {
-		return false;
+const makePostResponse = (post) => {
+	return {
+		post: post
 	}
 }
 
@@ -79,85 +78,54 @@ app.post('/register', (req, res) => {
 	const password = req.body.password;
 	const firstName = req.body.firstName;
 	const lastName = req.body.lastName;
-	if (!email) {
-		res.status(400).json(makeError('Please enter an email'))
-		return
-	}
-	if (!password) {
-		res.status(400).json(makeError('Please enter a password'))
-		return
-	}
-	if (!firstName) {
-		res.status(400).json(makeError('Please enter your first name'))
-		return
-	}
-	if (!lastName) {
-		res.status(400).json(makeError('Please enter your last name'))
-		return
-	}
-	if (!validateEmail(email)) {
-		res.status(400).json(makeError('Invalid email'))
-		return
-	}
-	User.findOne({ email: email, }, (err, user) => {
+
+	Validation.validate([
+		Validation.isEmail(email),
+		Validation.isPassword(password),
+		Validation.isString("First name", firstName),
+		Validation.isString("Last name", lastName),
+	], err => {
 		if (err) {
-			res.status(500).json(err);
+			res.status(400).json(makeError(err));
 			return;
 		}
-		if (user) {
-			res.status(400).json(makeError('Already registered'))
-			return
-		}
-		const userDocument = new User({
-			email: email,
-			password: bcrypt.hashSync(password, 10),
-			firstName: firstName,
-			lastName: lastName
-		});
-		userDocument.save((err, result) => {
+		User.findOne({ email: email, }, (err, user) => {
 			if (err) {
 				res.status(500).json(err);
 				return;
 			}
-			res.status(200).json(makeRegisterResponse(result));
+			if (user) {
+				res.status(400).json(makeError('Already registered'))
+				return
+			}
+			const userDocument = new User({
+				email: email,
+				password: bcrypt.hashSync(password, 10),
+				firstName: firstName,
+				lastName: lastName
+			});
+			userDocument.save((err, result) => {
+				if (err) {
+					res.status(500).json(err);
+					return;
+				}
+				res.status(200).json(makeRegisterResponse(result));
+			});
 		});
-	});
+	})
 })
 
 app.post('/login', (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
-	if (!email) {
-		res.status(400).json(makeError('Please enter an email'))
-		return
-	}
-	if (!password) {
-		res.status(400).json(makeError('Please enter a password'))
-		return
-	}
-	User.findOne({ email: email, }, (err, user) => {
+	Validation.validate([
+		Validation.isEmail(email),
+		Validation.isString('Password', password),
+	], err => {
 		if (err) {
-			res.status(500).json(err);
+			res.status(400).json(makeError(err))
 			return;
 		}
-		if (!user) {
-			res.status(400).json(makeError('User not found'))
-			return
-		}
-		if (!bcrypt.compareSync(password, user.password)) {
-			res.status(401).json(makeError('Invalid password'))
-			return
-		}
-		res.status(200).json(makeLoginResponse(user, jwt.sign({ email: email }, `${process.env.JWT_SECRET}`)));
-	});
-})
-
-app.get('/user', (req, res) => {
-	authorizeRequest(req, (err, email) => {
-		if (err) {
-			res.status(401).json(err);
-			return
-		}
 		User.findOne({ email: email, }, (err, user) => {
 			if (err) {
 				res.status(500).json(err);
@@ -167,19 +135,38 @@ app.get('/user', (req, res) => {
 				res.status(400).json(makeError('User not found'))
 				return
 			}
-			res.status(200).json(makeUserResponse(user))
+			if (!bcrypt.compareSync(password, user.password)) {
+				res.status(401).json(makeError('Invalid password'))
+				return
+			}
+			res.status(200).json(makeLoginResponse(user, jwt.sign({ email: email }, `${process.env.JWT_SECRET}`)));
 		});
-	});
+	})
 })
 
-app.post('/sell', (req, res) => {
-	// test
+app.post('/post', (req, res) => {
+	const title = req.body.title;
+	const description = req.body.description;
+	const price = req.body.price;
+	if (!title) {
+		res.status(400).json(makeError('Please enter a title'))
+		return
+	}
+	if (!description) {
+		res.status(400).json(makeError('Please enter a description'))
+		return
+	}
+	if (!price) {
+		res.status(400).json(makeError('Please enter your first name'))
+		return
+	}
+
 	authorizeRequest(req, (err, email) => {
 		if (err) {
 			res.status(401).json(err);
 			return
 		}
-		User.findOne({ email: email, }, (err, user) => {
+		User.findOne({ email: email }, (err, user) => {
 			if (err) {
 				res.status(500).json(err);
 				return;
@@ -188,26 +175,19 @@ app.post('/sell', (req, res) => {
 				res.status(400).json(makeError('User not found'))
 				return
 			}
-			res.status(200).json(makeUserResponse(user))
-		});
-		User.insertMany([{ title: title }, { description: description }, { price: price }], (err, result) => {
-			if (err) {
-				res.status(500).json(err);
-				return;
-			}
-			res.status(200).json(makeUserResponse(result))
-		});
-		const sellDocument = new Sell({
-			title: title,
-			description: description,
-			price: price,
-		});
-		sellDocument.save((err, result) => {
-			if (err) {
-				res.status(500).json(err);
-				return;
-			}
-			res.status(200).json(makeRegisterResponse(result));
+			const postDocument = new Post({
+				email: email,
+				title: title,
+				description: description,
+				price: price,
+			});
+			postDocument.save((err, result) => {
+				if (err) {
+					res.status(500).json(err);
+					return;
+				}
+				res.status(200).json(makePostResponse(result));
+			});
 		});
 	});
 })

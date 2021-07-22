@@ -7,6 +7,10 @@ export const post = (endpoint, params, onError, onSuccess) => {
   /* Add authorization token if it exists
      - check local storage and add to headers object with key Authorization
   */
+  let token = localStorage.getItem('token')
+  if (token) {
+    headers['Authorization'] = `Bearer${token}`
+  }
   fetch(`${config.API_BASE_URL}/${endpoint}`,
     {
       method: 'POST',

@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
-const SellSchema = new mongoose.Schema({
+const PostSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   title: {
     type: String,
     required: true,
@@ -11,11 +16,11 @@ const SellSchema = new mongoose.Schema({
     required: true,
   },
   price: {
-    type: String,
+    type: Number,
     required: true,
   },
 });
 
-const Sell = mongoose.model("Sell", SellSchema);
+const Post = mongoose.model("Post", PostSchema);
 
-module.exports = Sell;
+module.exports = Post;
