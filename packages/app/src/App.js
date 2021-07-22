@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import Header from './components/header'
+import Footer from './components/footer'
 
 import Home from './pages/home';
 import Login from './pages/login';
@@ -46,6 +47,7 @@ const App = () => {
           </Route>
         </Switch>
       </div>
+      <Footer />
     </Router >
   );
 }

@@ -2,45 +2,62 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 
 import Button from "../components/button";
-import Form from '../components/form';
+import Field from '../components/field';
+import { post } from "../tools/api";
 import config from '../config';
 
-import { post } from "../tools/api";
+import { Formik, Form } from 'formik';
+import * as Yup from "yup";
+
 
 const Login = ({ onLogin }) => {
   let history = useHistory();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const clearForm = () => {
-    setEmail('');
-    setPassword('');
-  }
-
-  const login = () => {
-    post("login", {
-      email: email,
-      password: password
-    }, (error) => {
-      // TODO
-    }, (response) => {
-      onLogin(response.token)
-      clearForm();
-      history.push("/");
-    })
-  }
+  //const [email, setEmail] = useState('');
+  //const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   return (
     <div>
       <h1>
         Login
       </h1>
-      <Form label="Email" value={email} setValue={setEmail} onSubmit={login} />
-      <Form label="Password" value={password} setValue={setPassword} type="password" onSubmit={login} />
-      <Button label="Login" onClick={login} />
-    </div>
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        validationSchema={Yup.object({
+          email: Yup.string()
+            .email("Invalid email addresss")
+            .required("Required"),
+          password: Yup.string()
+            .min(8, "Must be greater than 8 characters")
+            .required("Required"),
+        })}
+        onSubmit={(values, { resetForm }) => {
+          setError('');
+          post("login", {
+            email: values.email,
+            password: values.password
+          }, (error) => {
+            setError(error)
+          }, (response) => {
+            onLogin(response.token)
+            resetForm();
+            history.push("/");
+          })
+        }
+        }
+      >
 
+        {({ isLoading }) => (
+          <Form>
+            <Field type="email" name="email" label="Email" />
+            <Field type="password" name="password" label="Password" />
+            <Button label="Register" isLoading={isLoading} />
+            <div className="error-message">{error}</div>
+          </Form>
+        )}
+      </Formik>
+    </div >
   )
 }
 

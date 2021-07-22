@@ -16,9 +16,35 @@ const Home = () => {
   // }
 
   return (
-    <h1>
-      Home
-    </h1>
+    <div>
+      <h1>
+        Home
+      </h1>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+      <p>it's my bobino it's boberino</p>
+    </div>
+
+
   )
 }
 
