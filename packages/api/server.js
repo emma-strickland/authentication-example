@@ -172,45 +172,6 @@ app.get('/user', (req, res) => {
 	});
 })
 
-app.post('/sell', (req, res) => {
-	authorizeRequest(req, (err, email) => {
-		if (err) {
-			res.status(401).json(err);
-			return
-		}
-		User.findOne({ email: email, }, (err, user) => {
-			if (err) {
-				res.status(500).json(err);
-				return;
-			}
-			if (!user) {
-				res.status(400).json(makeError('User not found'))
-				return
-			}
-			res.status(200).json(makeUserResponse(user))
-		});
-		User.insertMany([{ title: title }, { description: description }, { price: price }], (err, result) => {
-			if (err) {
-				res.status(500).json(err);
-				return;
-			}
-			res.status(200).json(makeUserResponse(result))
-		});
-		const sellDocument = new Sell({
-			title: title,
-			description: description,
-			price: price,
-		});
-		sellDocument.save((err, result) => {
-			if (err) {
-				res.status(500).json(err);
-				return;
-			}
-			res.status(200).json(makeRegisterResponse(result));
-		});
-	});
-})
-
 const initAsync = async () => {
 	try {
 		let mongooseConnectionURL;
