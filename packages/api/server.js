@@ -173,6 +173,7 @@ app.get('/user', (req, res) => {
 })
 
 app.post('/sell', (req, res) => {
+	// test
 	authorizeRequest(req, (err, email) => {
 		if (err) {
 			res.status(401).json(err);
