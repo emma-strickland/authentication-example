@@ -172,6 +172,7 @@ app.get('/user', (req, res) => {
 	});
 })
 
+<<<<<<< HEAD
 app.post('/sell', (req, res) => {
 	// test
 	authorizeRequest(req, (err, email) => {
@@ -212,6 +213,8 @@ app.post('/sell', (req, res) => {
 	});
 })
 
+=======
+>>>>>>> 793a2d2fd37fd185ac74db331f3283d1ea320342
 const initAsync = async () => {
 	try {
 		let mongooseConnectionURL;
