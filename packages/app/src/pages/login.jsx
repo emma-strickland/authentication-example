@@ -26,7 +26,7 @@ const Login = ({ onLogin }) => {
         initialValues={{ email: '', password: '' }}
         validationSchema={Yup.object({
           email: Yup.string()
-            .email("Invalid email addresss")
+            .email("Invalid email address")
             .required("Required"),
           password: Yup.string()
             .min(8, "Must be greater than 8 characters")
