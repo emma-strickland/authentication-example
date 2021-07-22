@@ -2,52 +2,63 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 
 import Button from "../components/button";
-import Form from '../components/form';
+import Field from '../components/field';
+import { post } from "../tools/api";
 import config from '../config';
 
+import { Formik, Form } from 'formik';
+import * as Yup from "yup";
+
+
 const Login = ({ onLogin }) => {
-    let history = useHistory();
+  let history = useHistory();
 
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+  //const [email, setEmail] = useState('');
+  //const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-    const clearForm = () => {
-        setUsername('');
-        setPassword('');
-    }
-
-    const login = () => {
-        const requestOptionsLogin = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
+  return (
+    <div>
+      <h1>
+        Login
+      </h1>
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        validationSchema={Yup.object({
+          email: Yup.string()
+            .email("Invalid email addresss")
+            .required("Required"),
+          password: Yup.string()
+            .min(8, "Must be greater than 8 characters")
+            .required("Required"),
+        })}
+        onSubmit={(values, { resetForm }) => {
+          setError('');
+          post("login", {
+            email: values.email,
+            password: values.password
+          }, (error) => {
+            setError(error)
+          }, (response) => {
+            onLogin(response.token)
+            resetForm();
+            history.push("/");
+          })
         }
-        fetch(`${config.API_BASE_URL}/login`, requestOptionsLogin)
-            .then(res => res.json())
-            .then(result => {
-                onLogin(result.token)
-                clearForm();
-                history.push("/");
-            })
-            .catch(error => {
-                console.log('error: ', error);
-            })
-    }
+        }
+      >
 
-    return (
-        <div>
-            <h1>
-                Login
-            </h1>
-            <Form label="Username" value={username} setValue={setUsername} />
-            <Form label="Password" value={password} setValue={setPassword} type="password" />
-            <Button label="Login" onClick={login} />
-        </div>
-
-    )
+        {({ isLoading }) => (
+          <Form>
+            <Field type="email" name="email" label="Email" />
+            <Field type="password" name="password" label="Password" />
+            <Button label="Register" isLoading={isLoading} />
+            <div className="error-message">{error}</div>
+          </Form>
+        )}
+      </Formik>
+    </div >
+  )
 }
 
 export default Login;

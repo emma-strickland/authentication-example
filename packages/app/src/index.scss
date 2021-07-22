@@ -1,12 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Karla&display=swap');
 
 * {
   background-color: rgba(255, 255, 255, 1);
+  font-family: 'Karla', sans-serif;
 }
 
-$primary: #6C698D;
-$secondary: #D4D2D5;
-$tertiary: #6E6A6F;
+$primary: #2D2D34;
+$secondary: #D0CCD0;
+$tertiary: #443627;
+$quaternary: #60656F;
+
+$rich-black-fogra-29: #01161eff;
+$midnight-green-eagle-green: #124559ff;
+$teal-blue: #598392ff;
+$cambridge-blue: #aec3b0ff;
+$beige: #eff6e0ff;
+
+$primary-light: #fafafaff;
+$secondary-light: #e3f2fdff;
+$error: #db5461ff;
+$primary-dark: #686963ff;
+$secondary-dark: #8aa29eff;
 
 body {
   margin: 0;
@@ -17,6 +31,48 @@ body {
   height: 100vh;
 }
 
+.button {
+  cursor: pointer;
+  background: $secondary-dark;
+  border: 0;
+  padding-left: 48px;
+  padding-top: 0px;
+  padding-right: 48px;
+  padding-bottom: 0px;
+  min-width: 192px;
+  min-height: 48px;
+  border-radius: 8px;
+  color: $secondary-light;
+  transition: all 0.1s ease-in;
+  font-family: 'Inconsolata', monospace;
+}
+
+.button-inner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: $secondary-dark;
+}
+ 
+.button:hover {
+  opacity: .90;
+}
+
+.button-label {
+  background-color: $secondary-dark;
+  font-size: 16px;
+}
+
+.button-loader {
+  background-color: $primary-light;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-left: 4px solid;
+  animation: load 1s infinite linear;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+}
+
 .content {
   display: flex;
   justify-content: center;
@@ -24,36 +80,102 @@ body {
   text-align: center;
 }
 
-.form {
+.error-message {
+  font-size: 12px;
+  font-weight: 150;
+  padding: 32px;
+  color: $error;
+}
+
+// this didn't align the field-title 
+.field {
   text-align: left;
-  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.field-error {
+  font-size: 12px;
+  color: $error;
+}
+
+.field-error-space {
+  height: 13.5px;
+}
+
+.field-input{
+  text-align: left;
+  font-family: 'Inconsolata', monospace;
+  padding: 8px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  min-width: 48px;  
+  outline: none;
+  -webkit-appearance: none;
+  border: 0;
+  background-color: $secondary-light;
+}
+
+.field-label {
+  text-align: left;
+  font-size: 11px;
+  font-weight: bold;
+  color: $primary-dark;
+  font-family: Arial, sans-serif;
+}
+
+.footer {
+  background-color: $primary-dark;
+  margin-top: 24px;
+  padding: 48px;
+  text-align: center;
+}
+
+.footer-text {
+  flex: 1;
+  text-decoration: none;
+  background: $primary-dark;
+  color: $primary-light;
+  font-size: 8px;
+  text-align: center;
 }
 
 .header {
-  background-color: $primary;
+  background-color: $primary-dark;
   padding: 20px;
   display: flex;
+  position: bottom;
   flex-direction: row;
   align-items: center;
 }
 
 .header-link {
+  padding-right: 16px;
+  padding-left: 16px;
+  padding-top: 16px;
   text-decoration: none;
-  background: $primary;
-  color:$secondary
+  background: $primary-dark;
+  color: $primary-light;
+  position: relative;
+  color: $primary-light;
+}
+
+.header-link:hover {
+  opacity: .64;
 }
 
 .header-left {
   flex: 1;
   text-align: left;
-  background: $primary;
+  background: $primary-dark;
 }
 
 .header-center {
   flex: 1;
   text-decoration: none;
-  background: $primary;
-  color: $secondary;
+  background: $primary-dark;
+  color: $primary-light;
   font-size: 24px;
   text-align: center;
 }
@@ -61,35 +183,13 @@ body {
 .header-right {
   flex: 1;
   text-align: right;
-  background: $primary;
-}
-
-.button {
-    cursor: pointer;
-    border: 1px solid $tertiary;
-    background: $primary;
-    padding-left: 48px;
-    padding-top: 8px;
-    padding-right: 48px;
-    padding-bottom: 8px;
-    margin-top: 16px;
-    min-width: 64px;
-    border-radius: 16px;
-    color: $secondary;
-    transition: all 0.1s ease-in;
-    font-family: 'Inconsolata', monospace;
-  }
-   
-.button:hover {
-    opacity: .90;
-    color: $secondary;
+  background: $primary-dark;
 }
 
 hr {
   width: 16vw;
   margin-top: 32px;
 }
-
 
 @media (min-width: 350px) {
   .title {
@@ -106,5 +206,14 @@ hr {
   }
   .subtext {
     font-size: 32px;
+  }
+}
+
+@keyframes load {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
