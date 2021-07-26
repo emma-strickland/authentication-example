@@ -52,7 +52,7 @@ const Login = ({ onLogin }) => {
           <Form>
             <Field type="email" name="email" label="Email" />
             <Field type="password" name="password" label="Password" />
-            <Button label="Register" isLoading={isLoading} />
+            <Button label="Login" isLoading={isLoading} />
             <div className="error-message">{error}</div>
           </Form>
         )}

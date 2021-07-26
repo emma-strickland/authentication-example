@@ -9,7 +9,7 @@ import { Formik, Form } from 'formik';
 import * as Yup from "yup";
 
 
-const SellItem = ({ onLogin }) => {
+const PostItem = () => {
   let history = useHistory();
 
   //const [email, setEmail] = useState('');
@@ -22,8 +22,10 @@ const SellItem = ({ onLogin }) => {
         Sell an Item
       </h1>
       <Formik
-        initialValues={{ title: '', description: '', price: '' }}
+        initialValues={{ email: '', title: '', description: '', price: '' }}
         validationSchema={Yup.object({
+          email: Yup.string()
+            .required("Required"),
           title: Yup.string()
             .required("Required"),
           description: Yup.string()
@@ -35,13 +37,15 @@ const SellItem = ({ onLogin }) => {
         })}
         onSubmit={(values, { resetForm }) => {
           setError('');
-          post("sell", {
+          post("post", {
             email: values.email,
-            password: values.password
+            title: values.title,
+            description: values.description,
+            price: values.price
           }, (error) => {
             setError(error)
           }, (response) => {
-            onLogin(response.token)
+            //onLogin(response.token)
             resetForm();
             history.push("/");
           })
@@ -51,6 +55,7 @@ const SellItem = ({ onLogin }) => {
 
         {({ isLoading }) => (
           <Form>
+            <Field name="email" label="Email" />
             <Field name="title" label="Title" />
             <Field name="description" label="Description" />
             <Field name="price" label="Price ($)" />
@@ -63,4 +68,4 @@ const SellItem = ({ onLogin }) => {
   )
 }
 
-export default SellItem;
+export default PostItem;

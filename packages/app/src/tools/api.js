@@ -1,15 +1,14 @@
+// TODO: token logic should be centralized.
 import config from '../config';
+import { TOKEN } from './constants';
 
 const DEFAULT_ERROR_MESSAGE = "Internal error.";
 
 export const post = (endpoint, params, onError, onSuccess) => {
   let headers = { 'Content-Type': 'application/json' };
-  /* Add authorization token if it exists
-     - check local storage and add to headers object with key Authorization
-  */
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem(TOKEN)
   if (token) {
-    headers['Authorization'] = `Bearer${token}`
+    headers["Authorization"] = `Bearer${token}`
   }
   fetch(`${config.API_BASE_URL}/${endpoint}`,
     {
@@ -23,7 +22,8 @@ export const post = (endpoint, params, onError, onSuccess) => {
           .then(result => {
             onSuccess(result)
           })
-          .catch((_) => {
+          .catch((error) => {
+            console.log("error: ", error)
             onError(DEFAULT_ERROR_MESSAGE)
           })
       } else {

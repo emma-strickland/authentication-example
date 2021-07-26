@@ -12,9 +12,9 @@ import Footer from './components/footer'
 import Home from './pages/home';
 import Login from './pages/login';
 import Register from './pages/register';
-import Sell from './pages/sell';
+import PostItem from './pages/sell';
 
-const TOKEN = 'token';
+import { TOKEN } from './tools/constants';
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem(TOKEN) || '');
@@ -43,8 +43,8 @@ const App = () => {
               localStorage.setItem(TOKEN, token);
             }} />
           </Route>
-          <Route path="/sell">
-            <Sell />
+          <Route path="/post">
+            <PostItem />
           </Route>
           <Route path="/">
             <Home />

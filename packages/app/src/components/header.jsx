@@ -13,7 +13,7 @@ const Header = ({ isLoggedIn, onLogOut }) => {
         {isLoggedIn === true ?
           (
             <>
-              <Link className="header-link" onClick={onLogOut} to="/sell">Sell</Link>
+              <Link className="header-link" to="/post">Sell</Link>
               <Link className="header-link" onClick={onLogOut} to="/">Log out</Link>
             </>
           )

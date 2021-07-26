@@ -4,12 +4,10 @@ const PostSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
   title: {
     type: String,
     required: true,
-    unique: true,
   },
   description: {
     type: String,
