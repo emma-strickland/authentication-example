@@ -6,8 +6,8 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
-const User = require('./models/model');
-const Post = require('./models/model-post');
+const User = require('./models/user');
+const Listing = require('./models/listing');
 
 const Validation = require('./utils/validation')
 
@@ -49,6 +49,12 @@ const makeUserResponse = (user) => {
 const makePostResponse = (post) => {
 	return {
 		post: post
+	}
+}
+
+const makeBrowseResponse = (listings) => {
+	return {
+		listings: listings
 	}
 }
 
@@ -144,6 +150,7 @@ app.post('/login', (req, res) => {
 	})
 })
 
+// TODO: use new validation mechanism
 app.post('/post', (req, res) => {
 	const title = req.body.title;
 	const description = req.body.description;
@@ -175,7 +182,7 @@ app.post('/post', (req, res) => {
 				res.status(400).json(makeError('User not found'))
 				return
 			}
-			const postDocument = new Post({
+			const postDocument = new Listing({
 				email: email,
 				title: title,
 				description: description,
@@ -190,6 +197,21 @@ app.post('/post', (req, res) => {
 			});
 		});
 	});
+})
+
+app.get('/browse', (_, res) => {
+	Listing.find({}, (err, listings) => {
+		console.log(listings)
+		if (err) {
+			res.status(500).json(err);
+			return;
+		}
+		if (!listings) {
+			res.status(400).json(makeError('No listings not found'))
+			return
+		}
+		res.status(200).json(makeBrowseResponse(listings));
+	})
 })
 
 const initAsync = async () => {

@@ -73,6 +73,12 @@ body {
   height: 16px;
 }
 
+.chair-image {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+}
+
 .content {
   display: flex;
   justify-content: center;
@@ -189,6 +195,38 @@ body {
 hr {
   width: 16vw;
   margin-top: 32px;
+}
+
+.listing-header {
+  padding-top: 8px;
+  font-size: 16px;
+  font-weight: 900;
+  //text-transform: uppercase;
+}
+
+.listing-description {
+  font-size: 12px;
+  font-weight: 150;
+  padding-top: 8px;
+  color: $primary-dark;
+}
+
+.listing-price {
+  font-size: 12px;
+  font-weight: lighter;
+  padding-top: 8px;
+  padding-bottom: 32px;
+  color: $primary-dark;
+}
+
+.listing-container {
+  display: inline-flex;
+  flex-wrap: wrap; /* enable the wrap */
+  vertical-align: top;
+}
+
+.listing {
+  flex-basis: 33%; /* width = 50% */
 }
 
 @media (min-width: 350px) {

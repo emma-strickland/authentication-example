@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-const PostSchema = new mongoose.Schema({
+// TODO: change everything "post" -> "listing"
+const ListingSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -19,6 +20,6 @@ const PostSchema = new mongoose.Schema({
   },
 });
 
-const Post = mongoose.model("Post", PostSchema);
+const Listing = mongoose.model("Listing", ListingSchema);
 
-module.exports = Post;
+module.exports = Listing;

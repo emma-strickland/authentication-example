@@ -12,7 +12,10 @@ function isString(name, str) {
 }
 
 function isNumber(name, number) {
-  // TODO
+  if (typeof number !== 'number') {
+    return `${name} must be a number`
+  }
+  return null;
 }
 
 function isEmail(email) {
@@ -47,4 +50,4 @@ function validate(validationErrors, callback) {
   callback();
 }
 
-module.exports = { isString, isPassword, isEmail, validate };
+module.exports = { isString, isNumber, isPassword, isEmail, validate };

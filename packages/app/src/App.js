@@ -13,6 +13,7 @@ import Home from './pages/home';
 import Login from './pages/login';
 import Register from './pages/register';
 import PostItem from './pages/sell';
+import Browse from './pages/browse';
 
 import { TOKEN } from './tools/constants';
 
@@ -42,6 +43,9 @@ const App = () => {
               setToken(token);
               localStorage.setItem(TOKEN, token);
             }} />
+          </Route>
+          <Route path="/browse">
+            <Browse />
           </Route>
           <Route path="/post">
             <PostItem />
