@@ -12,7 +12,10 @@ function isString(name, str) {
 }
 
 function isNumber(name, number) {
-  if (typeof number !== 'number') {
+  if (!number) {
+    return `${name} is required`;
+  }
+  if (isNaN(number)) {
     return `${name} must be a number`
   }
   return null;

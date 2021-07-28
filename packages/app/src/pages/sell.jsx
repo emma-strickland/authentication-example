@@ -8,6 +8,14 @@ import { post } from "../tools/api";
 import { Formik, Form } from 'formik';
 import * as Yup from "yup";
 
+// add category field, condition field, and borough field with dropdown menu
+// modals on front end - try to get one form first 
+// focus on server - fields for selling item 
+// attach ids to objects in mongo - when create user an id should be created replace instances of email with user id
+// shouldnt have to enter email when submitting 
+// move authorization endpoints and listing endpoints to separate files from server.js and make sure they still work
+// our functions 
+// eventually need to make forms generic 
 
 const PostItem = () => {
   let history = useHistory();
@@ -22,10 +30,8 @@ const PostItem = () => {
         Sell an Item
       </h1>
       <Formik
-        initialValues={{ email: '', title: '', description: '', price: '' }}
+        initialValues={{ title: '', description: '', price: '' }}
         validationSchema={Yup.object({
-          email: Yup.string()
-            .required("Required"),
           title: Yup.string()
             .required("Required"),
           description: Yup.string()
@@ -38,8 +44,8 @@ const PostItem = () => {
         onSubmit={(values, { resetForm }) => {
           setError('');
           post("post", {
-            email: values.email,
             title: values.title,
+            category: values.category,
             description: values.description,
             price: values.price
           }, (error) => {
@@ -55,7 +61,6 @@ const PostItem = () => {
 
         {({ isLoading }) => (
           <Form>
-            <Field name="email" label="Email" />
             <Field name="title" label="Title" />
             <Field name="description" label="Description" />
             <Field name="price" label="Price ($)" />
