@@ -13,6 +13,7 @@ const authorizeRequest = (req, callback) => {
     return
   }
   let token = req.headers.authorization.slice(BEARER.length);
+  console.log(token)
   let payload;
   try {
     payload = jwt.verify(token, `${process.env.JWT_SECRET}`);
@@ -21,7 +22,7 @@ const authorizeRequest = (req, callback) => {
     return
   }
 
-  callback(null, payload.email);
+  callback(null, payload.id);
 }
 
 module.exports = { authorizeRequest };

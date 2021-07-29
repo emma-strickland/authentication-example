@@ -93,7 +93,7 @@ router.post('/login', (req, res) => {
         res.status(401).json(makeError('Invalid password'))
         return
       }
-      res.status(200).json(makeLoginResponse(user, jwt.sign({ email: email }, `${process.env.JWT_SECRET}`)));
+      res.status(200).json(makeLoginResponse(user, jwt.sign({ id: user._id }, `${process.env.JWT_SECRET}`)));
     });
   })
 })

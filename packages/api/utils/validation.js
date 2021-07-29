@@ -1,5 +1,7 @@
 const VALID_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const MIN_PASSWORD_LENGTH = 8;
+const CATEGORIES = ["SOFA", "CHAIR", "TABLE", "DESK", "LIGHTNING", "RUG"];
+const BOROUGHS = ["BROOKLYN", "BRONX", "MANHATTAN", "STATEN_ISLAND", "QUEENS"];
 
 function isString(name, str) {
   if (!str) {
@@ -43,6 +45,28 @@ function isPassword(password) {
   return null;
 }
 
+function isCategory(category) {
+  let isStringError = isString('Category', category);
+  if (isStringError) {
+    return isStringError;
+  }
+  if (!CATEGORIES.includes(category)) {
+    return `Invalid category`;
+  }
+  return null;
+}
+
+function isBorough(borough) {
+  let isStringError = isString('Borough', borough);
+  if (isStringError) {
+    return isStringError;
+  }
+  if (!BOROUGHS.includes(borough)) {
+    return `Invalid borough`;
+  }
+  return null;
+}
+
 function validate(validationErrors, callback) {
   for (error of validationErrors) {
     if (error) {
@@ -53,4 +77,4 @@ function validate(validationErrors, callback) {
   callback();
 }
 
-module.exports = { isString, isNumber, isPassword, isEmail, validate };
+module.exports = { isString, isNumber, isPassword, isEmail, isCategory, isBorough, validate };
