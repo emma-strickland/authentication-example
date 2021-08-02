@@ -10,14 +10,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  firstName: {
-    type: String,
-    required: true,
+  active: {
+    type: Boolean,
+    default: false,
   },
-  lastName: {
-    type: String,
-    required: true,
-  }
 });
 
 const User = mongoose.model("User", UserSchema);

@@ -9,7 +9,7 @@ const Browse = () => {
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
-    get("browse", (error) => {
+    get("listing/browse", (error) => {
       setError(error)
     }, (response) => {
       console.log(response)
