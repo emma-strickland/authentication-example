@@ -73,6 +73,12 @@ body {
   height: 16px;
 }
 
+.chair-image {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+}
+
 .content {
   display: flex;
   justify-content: center;
@@ -83,7 +89,7 @@ body {
 .error-message {
   font-size: 12px;
   font-weight: 150;
-  padding: 32px;
+  margin-top: 16px;
   color: $error;
 }
 
@@ -106,7 +112,7 @@ body {
 
 .field-input{
   text-align: left;
-  font-family: 'Inconsolata', monospace;
+  font-family: 'Karla', sans-serif;
   padding: 8px;
   margin-top: 4px;
   margin-bottom: 8px;
@@ -189,6 +195,61 @@ body {
 hr {
   width: 16vw;
   margin-top: 32px;
+}
+
+.listing-header {
+  padding-top: 8px;
+  font-size: 16px;
+  font-weight: 900;
+  //text-transform: uppercase;
+}
+
+.listing-description {
+  font-size: 12px;
+  font-weight: 150;
+  padding-top: 8px;
+  color: $primary-dark;
+}
+
+.listing-price {
+  font-size: 12px;
+  font-weight: lighter;
+  padding-top: 8px;
+  padding-bottom: 32px;
+  color: $primary-dark;
+}
+
+.listing-container {
+  display: inline-flex;
+  flex-wrap: wrap; /* enable the wrap */
+  vertical-align: top;
+}
+
+.listing {
+  flex-basis: 33%; /* width = 50% */
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 40px;
+  left: 400px;
+  right: 400px;
+  bottom: 40px;
+  border: 1px solid #ccc;
+  overflow: auto;
+  border-radius: 8px;
+  outline: none;
+  padding: 20px;
+  min-width: 400px;
+}
+
+.modal-title {
+  margin-top: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @media (min-width: 350px) {

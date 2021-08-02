@@ -2,7 +2,7 @@ import React from "react";
 
 import { Link } from "react-router-dom";
 
-const Header = ({ isLoggedIn, onLogOut }) => {
+const Header = ({ isLoggedIn, onLogOut, onRegister, onLogin }) => {
   return (
     <div className="header">
       <div className="header-left">
@@ -12,13 +12,18 @@ const Header = ({ isLoggedIn, onLogOut }) => {
       <div className="header-right">
         {isLoggedIn === true ?
           (
-            <Link className="header-link" onClick={onLogOut} to="/">Log out</Link>
+            <>
+              <Link className="header-link" to="/browse">Browse</Link>
+              <Link className="header-link" to="/post">Sell</Link>
+              <Link className="header-link" onClick={onLogOut} to="/">Log out</Link>
+            </>
           )
           :
           (
             <>
-              <Link className="header-link" to="/register">Register </Link>
-              <Link className="header-link" to="/login">Log in</Link>
+              <Link className="header-link" to="/browse">Browse</Link>
+              <Link className="header-link" onClick={onRegister}>Register </Link>
+              <Link className="header-link" onClick={onLogin}>Log in</Link>
             </>
           )
         }
