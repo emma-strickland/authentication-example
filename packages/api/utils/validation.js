@@ -1,7 +1,10 @@
+const Errors = require('./errors');
+
 const VALID_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const MIN_PASSWORD_LENGTH = 8;
 const CATEGORIES = ["SOFA", "CHAIR", "TABLE", "DESK", "LIGHTNING", "RUG"];
 const BOROUGHS = ["BROOKLYN", "BRONX", "MANHATTAN", "STATEN_ISLAND", "QUEENS"];
+
 
 function isString(name, str) {
   if (!str) {
@@ -67,14 +70,16 @@ function isBorough(borough) {
   return null;
 }
 
-function validate(validationErrors, callback) {
-  for (error of validationErrors) {
-    if (error) {
-      callback(error);
-      return;
+function validate(validationErrors) {
+  return new Promise((resolve, reject) => {
+    for (error of validationErrors) {
+      if (error) {
+        reject(Errors.makeBadRequestError(error));
+        return;
+      }
     }
-  }
-  callback();
+    resolve();
+  })
 }
 
 module.exports = { isString, isNumber, isPassword, isEmail, isCategory, isBorough, validate };

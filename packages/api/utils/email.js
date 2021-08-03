@@ -7,7 +7,7 @@ sendGrid.setApiKey(process.env.SENDGRID_API_KEY)
 
 const TEMPLATE_ID = 'd-6525b0ff0d2d4533bcaf1281f71c695a'
 
-function sendVerificationEmail(recipient, verificationCode, protocol, host, callback) {
+function sendVerificationEmail(recipient, verificationCode, protocol, host) {
   const baseUrl = url.format({
     protocol: protocol,
     host: host,
@@ -21,14 +21,7 @@ function sendVerificationEmail(recipient, verificationCode, protocol, host, call
     },
   };
   console.log('Sending verification email with data: ', message);
-  sendGrid
-    .send(message)
-    .then((_) => {
-      callback();
-    })
-    .catch((error) => {
-      callback(error);
-    })
+  return sendGrid.send(message)
 }
 
 module.exports = { sendVerificationEmail };

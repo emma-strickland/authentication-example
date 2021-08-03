@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 var express = require('express')
 const jwt = require('jsonwebtoken');
+const waterfall = require('async/waterfall');
+
 var router = express.Router();
 
 const crypto = require('crypto');
@@ -10,6 +12,7 @@ const Verification = require('../models/verification');
 
 const Validation = require('../utils/validation');
 const Email = require('../utils/email');
+const Errors = require('../utils/errors');
 
 // TODO: move functions to another file in utils
 const makeError = (str) => {
@@ -31,64 +34,57 @@ const makeLoginResponse = (user, token) => {
   }
 }
 
-router.post('/register', (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+router.post('/register', async (req, res) => {
+  try {
+    // Validate parameters.
+    const email = req.body.email;
+    const password = req.body.password;
+    await Validation.validate([
+      Validation.isEmail(email),
+      Validation.isPassword(password),
+    ]);
 
-  Validation.validate([
-    Validation.isEmail(email),
-    Validation.isPassword(password),
-  ], err => {
-    if (err) {
-      res.status(400).json(makeError(err));
+    // Check if the user is already registered.
+    let user = await User.findOne({ email: email });
+    if (user) {
+      throw Errors.makeBadRequestError('User already registered');
+    }
+
+    // Create the new user.
+    user = new User({
+      email: email,
+      password: bcrypt.hashSync(password, 10),
+    });
+    await user.save();
+
+    // Create a verification for the user.
+    const verification = new Verification({
+      user: user._id,
+      verificationCode: crypto.randomUUID(),
+    });
+    verification.save();
+
+    // Send a verification email to the email address provided.
+    await Email.sendVerificationEmail(
+      user.email,
+      verification.verificationCode,
+      req.protocol,
+      req.get('host')
+    );
+
+    // Send a response with the user object.
+    res.status(200).send(makeRegisterResponse(user));
+  } catch (err) {
+    if (err.message || !err.status) {
+      res.status(500).send(err);
+    }
+    if (!err.status) {
+      res.status(500).send(err);
       return;
     }
-    User.findOne({ email: email, }, (err, user) => {
-      if (err) {
-        res.status(500).json(err);
-        return;
-      }
-      if (user) {
-        res.status(400).json(makeError('Already registered'))
-        return
-      }
-      const userDocument = new User({
-        email: email,
-        password: bcrypt.hashSync(password, 10),
-      });
-      userDocument.save((err, userDocumentResult) => {
-        if (err) {
-          res.status(500).json(err);
-          return;
-        }
-        // TODO: verificationCode should be unique
-        const verificationDocument = new Verification({
-          user: userDocumentResult._id,
-          verificationCode: crypto.randomUUID(),
-        });
-        console.log(verificationDocument)
-        verificationDocument.save((err, verificationDocumentResult) => {
-          if (err) {
-            res.status(500).json(err);
-            return;
-          }
-          Email.sendVerificationEmail(
-            userDocument.email,
-            verificationDocumentResult.verificationCode,
-            req.protocol,
-            req.get('host'),
-            (err) => {
-              if (err) {
-                res.status(500).json(err);
-                return;
-              }
-              res.status(200).json(makeRegisterResponse(userDocumentResult));
-            })
-        });
-      });
-    });
-  })
-})
+    res.status(err.status).send(err)
+  }
+});
 
 router.post('/login', (req, res) => {
   const email = req.body.email;
