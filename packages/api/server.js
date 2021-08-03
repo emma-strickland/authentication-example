@@ -1,4 +1,5 @@
 // TODO(emma): error objects are not showing up in error response.
+// TODO: database transactions should be reverted on error
 
 const cors = require('cors');
 const dotenv = require('dotenv');
