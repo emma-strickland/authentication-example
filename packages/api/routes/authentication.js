@@ -62,23 +62,28 @@ router.post('/register', (req, res) => {
           return;
         }
         // TODO: verificationCode should be unique
-        // const code = crypto.randomUUID(),
         const verificationDocument = new Verification({
           user: userDocumentResult._id,
           verificationCode: crypto.randomUUID(),
         });
+        console.log(verificationDocument)
         verificationDocument.save((err, verificationDocumentResult) => {
           if (err) {
             res.status(500).json(err);
             return;
           }
-          Email.sendVerificationEmail(userDocument.email, verificationDocumentResult.verificationCode, (err) => {
-            if (err) {
-              res.status(500).json(err);
-              return;
-            }
-            res.status(200).json(makeRegisterResponse(userDocumentResult));
-          })
+          Email.sendVerificationEmail(
+            userDocument.email,
+            verificationDocumentResult.verificationCode,
+            req.protocol,
+            req.get('host'),
+            (err) => {
+              if (err) {
+                res.status(500).json(err);
+                return;
+              }
+              res.status(200).json(makeRegisterResponse(userDocumentResult));
+            })
         });
       });
     });
@@ -117,46 +122,39 @@ router.post('/login', (req, res) => {
   })
 })
 
-// https://localhost:3000/authentication/verify?code=123
-// req.query.code => 123
-
-// how do i parse out the code and place it in the url here? 
-router.route("/verify/:token")
-  .get((req, res) => {
-    const code = req.params.verificationCode;
-    // query mongo database to get user id associated with code
-    Verification.findOne({ verificationCode: verificationCode, }, (err, verificationCode) => {
+router.get("/verify", (req, res) => {
+  const verificationCode = req.query.code;
+  console.log(verificationCode)
+  // query mongo database to get user id associated with code
+  Verification.findOne({ verificationCode: verificationCode, }, (err, verificationCode) => {
+    if (err) {
+      res.status(500).json(err);
+      return;
+    }
+    if (!verificationCode) {
+      res.status(400).json(makeError('Verification code not found'))
+      return
+    }
+    // otherwise, we have found the userId associated with the code
+    User.findOne({ _id: verificationCode.user, }, (err, user) => {
       if (err) {
         res.status(500).json(err);
         return;
       }
-      if (!verificationCode) {
-        res.status(400).json(makeError('Verification code not found'))
+      if (!user) {
+        res.status(400).json(makeError('User not found'))
         return
       }
-      // otherwise, we have found the userId associated with the code
-      User.findOne({ _id: verificationCode.user, }, (err, user) => {
+      user.active = true;
+      user.save((err) => {
         if (err) {
-          res.status(500).json(err);
-          return;
+          return res.status(500).send(err);
         }
-        if (!user) {
-          res.status(400).json(makeError('User not found'))
-          return
-        }
-        user.active = true;
-        user.save((err) => {
-          if (err) {
-            return res.status(500).send(err);
-          }
-          return res.status(200).send('Your account is now verified');
-        });
-      })
+        return res.status(200).send('Your account is now verified');
+      });
     })
   })
-
-// next steps are to get the button in the sendgrid email to work and go to a server link with the query parameters
-// in the url 
+})
 
 module.exports = router
 
