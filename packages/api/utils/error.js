@@ -1,7 +1,7 @@
 function makeError(code, message) {
   return {
     status: code,
-    errorMessage: message
+    message: message
   };
 }
 

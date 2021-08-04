@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs')
 var express = require('express')
 const jwt = require('jsonwebtoken');
-const waterfall = require('async/waterfall');
 
 var router = express.Router();
 
@@ -10,16 +9,9 @@ const crypto = require('crypto');
 const User = require('../models/user');
 const Verification = require('../models/verification');
 
-const Validation = require('../utils/validation');
-const Email = require('../utils/email');
-const Errors = require('../utils/errors');
-
-// TODO: move functions to another file in utils
-const makeError = (str) => {
-  return {
-    message: str
-  }
-}
+const validation = require('../utils/validation');
+const sendEmail = require('../utils/email');
+const error = require('../utils/error');
 
 const makeRegisterResponse = (user) => {
   return {
@@ -34,20 +26,20 @@ const makeLoginResponse = (user, token) => {
   }
 }
 
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
   try {
     // Validate parameters.
     const email = req.body.email;
     const password = req.body.password;
-    await Validation.validate([
-      Validation.isEmail(email),
-      Validation.isPassword(password),
+    await validation.validate([
+      validation.isEmail(email),
+      validation.isPassword(password),
     ]);
 
     // Check if the user is already registered.
     let user = await User.findOne({ email: email });
     if (user) {
-      throw Errors.makeBadRequestError('User already registered');
+      throw error.makeBadRequestError('User already registered');
     }
 
     // Create the new user.
@@ -58,14 +50,15 @@ router.post('/register', async (req, res) => {
     await user.save();
 
     // Create a verification for the user.
-    const verification = new Verification({
+    // TODO: make sure that verification code is unique
+    let verification = new Verification({
       user: user._id,
       verificationCode: crypto.randomUUID(),
     });
-    verification.save();
+    await verification.save();
 
     // Send a verification email to the email address provided.
-    await Email.sendVerificationEmail(
+    await sendEmail.sendVerificationEmail(
       user.email,
       verification.verificationCode,
       req.protocol,
@@ -74,82 +67,63 @@ router.post('/register', async (req, res) => {
 
     // Send a response with the user object.
     res.status(200).send(makeRegisterResponse(user));
+
   } catch (err) {
-    if (err.message || !err.status) {
-      res.status(500).send(err);
-    }
-    if (!err.status) {
-      res.status(500).send(err);
-      return;
-    }
-    res.status(err.status).send(err)
+    next(err);
   }
 });
 
-router.post('/login', (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  Validation.validate([
-    Validation.isEmail(email),
-    Validation.isString('Password', password),
-  ], err => {
-    if (err) {
-      res.status(400).json(makeError(err))
-      return;
+router.post('/login', async (req, res, next) => {
+  try {
+    // Validate parameters.
+    const email = req.body.email;
+    const password = req.body.password;
+    await validation.validate([
+      validation.isEmail(email),
+      validation.isString('Password', password),
+    ]);
+    let user = await User.findOne({ email: email });
+    if (!user) {
+      throw error.makeBadRequestError('User not found');
     }
-    User.findOne({ email: email, }, (err, user) => {
-      if (err) {
-        res.status(500).json(err);
-        return;
-      }
-      if (!user) {
-        res.status(400).json(makeError('User not found'))
-        return
-      }
-      if (!bcrypt.compareSync(password, user.password)) {
-        res.status(401).json(makeError('Invalid password'))
-        return
-      }
-      if (user.active === false) {
-        res.status(400).json(makeError('Please verify your email before logging in'))
-      }
-      res.status(200).json(makeLoginResponse(user, jwt.sign({ id: user._id }, `${process.env.JWT_SECRET}`)));
-    });
-  })
+    if (!bcrypt.compareSync(password, user.password)) {
+      throw error.makeBadRequestError('Invalid password');
+    }
+    if (user.active === false) {
+      throw error.makeBadRequestError('Please verify your email before logging in');
+    }
+    res.status(200).json(makeLoginResponse(user, jwt.sign({ id: user._id }, `${process.env.JWT_SECRET}`)));
+
+  }
+  catch (err) {
+    next(err);
+  }
 })
 
-router.get("/verify", (req, res) => {
-  const verificationCode = req.query.code;
-  console.log(verificationCode)
-  // query mongo database to get user id associated with code
-  Verification.findOne({ verificationCode: verificationCode, }, (err, verificationCode) => {
-    if (err) {
-      res.status(500).json(err);
-      return;
-    }
+router.get('/verify', async (req, res, next) => {
+  try {
+    const code = req.query.code;
+    console.log(code);
+
+    // query mongo database to get user id associated with code
+    let verificationCode = await Verification.findOne({ verificationCode: code })
     if (!verificationCode) {
-      res.status(400).json(makeError('Verification code not found'))
-      return
+      throw error.makeBadRequestError('Verification code not found');
     }
-    // otherwise, we have found the userId associated with the code
-    User.findOne({ _id: verificationCode.user, }, (err, user) => {
-      if (err) {
-        res.status(500).json(err);
-        return;
-      }
-      if (!user) {
-        res.status(400).json(makeError('User not found'))
-        return
-      }
-      user.active = true;
-      user.save((err) => {
-        if (err) {
-          return res.status(500).send(err);
-        }
-        return res.status(200).send('Your account is now verified');
-      });
-    })
-  })
+    let user = await User.findOne({ _id: verificationCode.user })
+    if (!user) {
+      throw error.makeBadRequestError('User not found');
+    }
+    if (user.active === true) {
+      throw error.makeBadRequestError('This account is already verified');
+    }
+    user.active = true;
+    await user.save();
+    res.status(200).send('Your account is now verified');
+
+  } catch (error) {
+    next(error)
+  }
 })
 
 module.exports = router

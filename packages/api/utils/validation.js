@@ -1,4 +1,4 @@
-const Errors = require('./errors');
+const Errors = require('./error');
 
 const VALID_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const MIN_PASSWORD_LENGTH = 8;

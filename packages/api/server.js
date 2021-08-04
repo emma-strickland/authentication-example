@@ -24,6 +24,17 @@ const initAsync = async () => {
 		app.use('/authentication', authentication);
 		app.use('/listing', listing);
 
+		// Error handler
+		app.use((err, _req, res, _) => {
+			// We found an error that we created in error.js
+			if (err.status) {
+				res.status(err.status).send(err)
+				return;
+			}
+			// Otherwise, send a generic 500, internal server error.
+			res.status(500).send(err.message ? err.message : err);
+		})
+
 		let mongooseConnectionURL;
 		mongooseConnectionURL += `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}`;
 		mongooseConnectionURL += `@${process.env.DB_HOST}/${process.env.DB_NAME}?`;
