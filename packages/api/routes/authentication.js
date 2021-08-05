@@ -82,6 +82,7 @@ router.post('/login', async (req, res, next) => {
       validation.isEmail(email),
       validation.isString('Password', password),
     ]);
+    // Search database for user.
     let user = await User.findOne({ email: email });
     if (!user) {
       throw error.makeBadRequestError('User not found');
@@ -92,6 +93,7 @@ router.post('/login', async (req, res, next) => {
     if (user.active === false) {
       throw error.makeBadRequestError('Please verify your email before logging in');
     }
+    // Send a response with the user object and token.
     res.status(200).json(makeLoginResponse(user, jwt.sign({ id: user._id }, `${process.env.JWT_SECRET}`)));
 
   }
@@ -105,18 +107,21 @@ router.get('/verify', async (req, res, next) => {
     const code = req.query.code;
     console.log(code);
 
-    // query mongo database to get user id associated with code
+    // Search the database by the verification code. 
     let verificationCode = await Verification.findOne({ verificationCode: code })
     if (!verificationCode) {
       throw error.makeBadRequestError('Verification code not found');
     }
+    // Find the userId associated with code.
     let user = await User.findOne({ _id: verificationCode.user })
     if (!user) {
       throw error.makeBadRequestError('User not found');
     }
+    // Check if the user is already verified.
     if (user.active === true) {
       throw error.makeBadRequestError('This account is already verified');
     }
+    // Mark the user as verified.
     user.active = true;
     await user.save();
     res.status(200).send('Your account is now verified');

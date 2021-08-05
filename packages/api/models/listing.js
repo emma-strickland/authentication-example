@@ -1,11 +1,9 @@
 const mongoose = require("mongoose");
 
 const ListingSchema = new mongoose.Schema({
-  // TODO: this should be "user"
-  email: {
-    type: String,
-    // type: mongoose.Schema.Types.ObjectId,
-    // ref: "User",
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
   title: {

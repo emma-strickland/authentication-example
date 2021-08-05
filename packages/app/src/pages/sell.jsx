@@ -10,11 +10,6 @@ import * as Yup from "yup";
 
 // add category field, condition field, and borough field with dropdown menu
 // modals on front end - try to get one form first 
-// focus on server - fields for selling item 
-// attach ids to objects in mongo - when create user an id should be created replace instances of email with user id
-// shouldnt have to enter email when submitting 
-// move authorization endpoints and listing endpoints to separate files from server.js and make sure they still work
-// our functions 
 // eventually need to make forms generic 
 
 const PostItem = () => {

@@ -1,5 +1,7 @@
 .env
 
+async.js
+
 yarn-debug.log*
 yarn-error.log*
 

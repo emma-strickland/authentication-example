@@ -5,12 +5,12 @@ function makeError(code, message) {
   };
 }
 
-function makeServerError(message) {
-  return makeError(500, message);
-}
-
 function makeBadRequestError(message) {
   return makeError(400, message);
 }
 
-module.exports = { makeBadRequestError };
+function makeInternalServerError(message) {
+  return makeError(500, message);
+}
+
+module.exports = { makeBadRequestError, makeInternalServerError };
