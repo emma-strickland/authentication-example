@@ -6,6 +6,7 @@ const Listing = require('../models/listing');
 
 const validation = require('../utils/validation');
 const authorization = require('../utils/authorization');
+const error = require('../utils/error');
 
 const makeError = (str) => {
   return {
@@ -23,6 +24,10 @@ const makeBrowseResponse = (listings) => {
   return {
     listings: listings
   }
+}
+
+const makeDeleteResponse = () => {
+  return {};
 }
 
 router.post('/post', async (req, res, next) => {
@@ -43,7 +48,7 @@ router.post('/post', async (req, res, next) => {
 
     // Authorize the user.
     let user = await authorization.authorizeRequest(req)
-
+    console.log('User: ', user);
     // Create listing.
     const postDocument = new Listing({
       user: user._id,
@@ -62,60 +67,6 @@ router.post('/post', async (req, res, next) => {
   }
 });
 
-// router.post('/post', async (req, res, next) => {
-//   const id = req.body.title;
-//   const title = req.body.title;
-//   const category = req.body.category;
-//   const description = req.body.description;
-//   const borough = req.body.borough;
-//   const price = req.body.price;
-
-//   Validation.validate([
-//     Validation.isBorough(borough),
-//     Validation.isCategory(category),
-//     Validation.isString('Title', title),
-//     Validation.isString('Description', description),
-//     Validation.isNumber('Price', price),
-//   ], err => {
-//     if (err) {
-//       res.status(400).json(makeError(err))
-//       return;
-//     }
-//     authorization.authorizeRequest(req, (err, userId) => {
-//       if (err) {
-//         res.status(401).json(err);
-//         return
-//       }
-//       console.log('userId: ', userId);
-//       User.findOne({ _id: userId }, (err, user) => {
-//         if (err) {
-//           res.status(500).json(err);
-//           return;
-//         }
-//         if (!user) {
-//           res.status(400).json(makeError('User not found'))
-//           return
-//         }
-//         const postDocument = new Listing({
-//           email: 'fake@gmail.com',
-//           title: title,
-//           category: category,
-//           description: description,
-//           borough: borough,
-//           price: price,
-//         });
-//         postDocument.save((err, result) => {
-//           if (err) {
-//             res.status(500).json(err);
-//             return;
-//           }
-//           res.status(200).json(makePostResponse(result));
-//         });
-//       });
-//     });
-//   });
-// })
-
 router.get('/browse', async (_, res, next) => {
   try {
     // Search database for all listings. 
@@ -130,18 +81,35 @@ router.get('/browse', async (_, res, next) => {
   }
 })
 
-// router.get('/browse', (_, res) => {
-//   Listing.find({}, (err, listings) => {
-//     if (err) {
-//       res.status(500).json(err);
-//       return;
-//     }
-//     if (!listings) {
-//       res.status(400).json(makeError('No listings not found'))
-//       return
-//     }
-//     res.status(200).json(makeBrowseResponse(listings));
-//   })
-// })
+router.post('/delete', async (req, res, next) => {
+  try {
+    // Validate parameters.
+    const listingId = req.body.listing;
+    await validation.validate([
+      validation.isString('Listing ID', listingId),
+    ]);
+
+    // Authorize the user.
+    const user = await authorization.authorizeRequest(req)
+
+    // Find the listing by id.
+    let listing = await Listing.findOne({ _id: listingId });
+    if (!listing) {
+      throw error.makeBadRequestError('Listing does not exist');
+    }
+
+    // Make sure the listing belongs to the user.
+    if (!listing.user._id.equals(user._id)) {
+      throw error.makeBadRequestError('You do not have permission to delete this listing');
+    }
+
+    // Remove the listing from the database.
+    await Listing.deleteOne({ _id: listingId });
+    res.status(200).json(makeDeleteResponse());
+
+  } catch (error) {
+    next(error)
+  }
+})
 
 module.exports = router

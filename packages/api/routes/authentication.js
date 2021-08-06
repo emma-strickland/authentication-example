@@ -124,6 +124,7 @@ router.get('/verify', async (req, res, next) => {
     // Mark the user as verified.
     user.active = true;
     await user.save();
+
     res.status(200).send('Your account is now verified');
 
   } catch (error) {

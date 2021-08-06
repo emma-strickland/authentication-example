@@ -1,4 +1,4 @@
-const Errors = require('./error');
+const error = require('./error');
 
 const VALID_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const MIN_PASSWORD_LENGTH = 8;
@@ -71,15 +71,11 @@ function isBorough(borough) {
 }
 
 function validate(validationErrors) {
-  return new Promise((resolve, reject) => {
-    for (error of validationErrors) {
-      if (error) {
-        reject(Errors.makeBadRequestError(error));
-        return;
-      }
+  for (validationError of validationErrors) {
+    if (validationError) {
+      throw error.makeBadRequestError(validationError);
     }
-    resolve();
-  })
+  }
 }
 
 module.exports = { isString, isNumber, isPassword, isEmail, isCategory, isBorough, validate };
